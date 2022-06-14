@@ -1,0 +1,195 @@
+---
+title: "ADS503_Team_Project"
+author: "Azucena Faus"
+date: "6/7/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(mlbench)
+library(Hmisc)
+library(e1071)
+library(caret)
+library(tidyr)
+library(corrplot)
+library(AppliedPredictiveModeling)
+library(car)
+library(lattice)
+library(lars)
+library(stats)
+library(pls)
+library(dplyr)
+library(kernlab)
+library(randomForest)
+library(gbm)
+library(earth)
+library(plotmo)
+library(plotrix)
+library(TeachingDemos)
+
+```
+
+
+```{r setup_part2}
+
+brain=read.table(file.choose(), header=TRUE, sep=",")
+#RF_test_data=read.table(file.choose(), header=TRUE, sep=",")
+
+```
+
+```{r exploredata}
+
+dim(brain_df)
+
+head(brain)
+brain[,2]
+
+```
+
+
+```{r moredataexplore1}
+### Remove low variance predictors:
+### Does not work well with this data...
+#brain_idx <- nearZeroVar(brain_df[,-c(1,2)]) 
+#excluding the dependent variable
+#brain_df_var <- brain_df[,-brain_idx]
+#dim(brain_df_var)
+
+hist(brain$X1007_s_at)
+hist(brain$X1053_at)
+hist(brain$X117_at)
+hist(brain$X121_at)
+```
+
+```{r dataprocesses1}
+### Create a binary alternate output and include in dataframe
+
+#Create an alternate output variable called Cancer with "Yes" or "No" 
+#binary output so as to facilitate an odds ratio output from a Logistic Classifier
+cancer = as.character(brain$type)
+cancer[cancer == "ependymoma"] = "Yes"
+cancer[cancer == "glioblastoma"] = "Yes"
+cancer[cancer == "medulloblastoma"] = "Yes"
+cancer[cancer == "pilocytic_astrocytoma"] = "Yes"
+cancer[cancer == "normal"] = "No"
+cancer = factor(any_damage, levels = c("Yes", "No"))
+
+brain_df <- cbind(cancer, brain)
+
+```
+
+#### Data train/test data splits based on binary output *cancer* for logistic classification:
+
+```{r logisticclassdata}
+set.seed(100)
+
+### stratified random sampling to split up the data 
+### while keeping the class proportions for binary class cancer:
+
+brain_train_idx <- createDataPartition(brain_df$cancer, p=0.8, list = FALSE)
+brain_trainb <- brain_df[brain_train_idx,]
+brain_testb <- brain_df[-brain_train_idx,]
+
+```
+
+#### Data train/test data splits based on multi-class output *type* for logistic classification:
+
+```{r multiclassdatasplit}
+
+### Stratified random sampling for multiclass output classes, type:
+set.seed(100)
+
+brain_train_idx <- createDataPartition(brain_df$type, p=0.8, list = FALSE)
+brain_train1 <- brain_df[brain_train_idx,]
+brain_test1 <- brain_df[-brain_train_idx,]
+
+
+```
+
+#### Moving forward with multiclass variable "type" stratified random split:
+
+```{r scalecenter}
+
+
+brain_process <- preProcess(brain_train1[,-c(1:3)],
+                    method = c("BoxCox", "scale", "center"))
+brain_train <- predict(brain_process, brain_train1)
+
+```
+
+
+```{r pca}
+
+brain_pca <- preProcess(brain_train[,-c(1,2)],
+                    method = c("pca"))
+
+brain_train_pca <- predict(brain_pca, brain_train)
+
+```
+
+```{r crossvalidation}
+
+# Create 10x cross validation folds:
+brain_cv_idx <- createFolds(brain_train_pca$type, returnTrain = TRUE)
+brain_ctrl <- trainControl(method = "cv", index = brain_cv_idx)
+
+```
+
+
+
+```{r moredataexplore3}
+
+head(brain_train_pca)
+dim(brain_train_pca)
+
+```
+
+```{r moredataexplore4}
+
+hist(brain_train_pca$PC1)
+hist(brain_train_pca$PC1)
+```
+
+```{r moredataexplore5}
+brain_trainX <- brain_train_pca[,-c(1,2)]
+brain_testX1 <- brain_test1[,-c(1,2)]
+
+brain_trainY <- brain_train_pca[,2]
+brain_testY1 <- brain_test1[,2]
+
+
+
+brain_trainY = factor(brain_trainY)
+
+	
+brain_testY1 = factor(brain_testY1)
+
+set.seed(100)
+svmR_brain_model <- train(x = brain_trainX, y = brain_trainY,
+                  method = "svmLinear",
+                  tuneLength = 14,
+                  trControl = brain_ctrl)
+svmR_model
+#plot(svmR_brain_model, scales = list(x = list(log = 2))) 
+svmRImpB <- varImp(svmR_brain_model, scale = FALSE)
+plot(svmRImpB, top = 25)
+#svmR_model$finalModel
+# RESULTS:
+# optimal C=4
+# epsilon=0.1
+# sigma=0.01826
+# 1.329 RMSE, .4649 R^2
+
+```
+
+
+
+```{r plotsdata}
+
+
+
+```
+
+
