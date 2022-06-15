@@ -3,7 +3,7 @@
 ## Predicting brain cancer by identifying homogenous gene expressions
 
 ### Description:  
-This project will train models to predict brain cancer in patients based on gene expressions.
+This project will train, cross validate, test and evaluate predictive classification models, to predict brain cancer in patients based on gene expressions.
 For some models, feature engineering and selection will be vital. For others, like nearest shrunken neighbor, we could attempt the use of the entire dataset, as this model is best suited for high dimensional data with low sample size.
 
 ### Name of Selected Dataset: 
