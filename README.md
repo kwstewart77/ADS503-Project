@@ -15,6 +15,6 @@ The dataset can be found on Kaggle at https://www.kaggle.com/datasets/brunogrisc
 The data contains 130 instances with over 50k features of genetic data. The dependent variable is multinomial, with 4 classes of cancer types, and 1 class of normal.
 
 ### Credits:
-Abby Tan
-Kevin Steward
-Azucena Faus
+Abby Tan,
+Kevin Steward,
+Azucena Faus,
