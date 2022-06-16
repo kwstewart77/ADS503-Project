@@ -74,8 +74,8 @@ cancer[cancer == "glioblastoma"] = "Yes"
 cancer[cancer == "medulloblastoma"] = "Yes"
 cancer[cancer == "pilocytic_astrocytoma"] = "Yes"
 cancer[cancer == "normal"] = "No"
-cancer = factor(any_damage, levels = c("Yes", "No"))
-
+#cancer = factor(any_damage, levels = c("Yes", "No"))
+cancer = factor(cancer, levels = c("Yes", "No"))
 brain_df <- cbind(cancer, brain)
 
 ```
