@@ -193,3 +193,34 @@ plot(svmRImpB, top = 25)
 ```
 
 
+```{r plotsdata}
+# distribution for type
+ggplot(brain, aes(x = type)) +
+    geom_bar(position = position_dodge()) +
+    theme_classic()
+```
+
+```{r}
+# value count for type 
+as.data.frame(table(brain[2]))
+```
+
+```{r}
+# distribution for cancer
+ggplot(brain, aes(x = cancer)) +
+    geom_bar(position = position_dodge()) +
+    theme_classic()
+```
+
+```{r}
+# predictors skewness
+gene_ele <- brain_train_pca[4:83]
+hist.data.frame(gene_ele)
+```
+
+```{r}
+# correlation
+library(corrplot)
+res <- cor(gene_ele)
+corrplot(res)
+```
