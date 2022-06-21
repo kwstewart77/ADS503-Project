@@ -184,15 +184,58 @@ plot(svmRImpB, top = 25)
 
 ```
 
+#### Model 5: Random Forest
+```{r}
+library(randomForest)
 
+# Random Forest to predict Caner (Yes/No)
 
-```{r plotsdata}
+  # set x and y
+train_x <- brain_train_pca[4:83]
+can_train_y <- brain_train_pca[1]
+type_train_y <- brain_train_pca[3]
 
+  # train control
+ctrl <- trainControl(method = "cv", 
+                     summaryFunction = twoClassSummary, 
+                     classProbs = TRUE, 
+                     savePredictions = TRUE)
 
+  # model
+library(randomForest)
+rf <- randomForest(x = train_x,
+                   y = can_train_y$cancer,
+                   method = "rf",
+                   importance = TRUE,
+                   trControl = ctrl,
+                   ntree = 100)
 
+  # confusion matrix
+confusionMatrix(rf$pred, can_train_y$cancer)
 ```
 
+```{r}
+# Random Forest to predict caner type (ependymoma, glioblastoma, medulloblastoma, normal, pilocytic_astrocytoma)
 
+  # train control
+ctrl <- trainControl(method = "cv", 
+                     classProbs = TRUE, 
+                     savePredictions = TRUE)
+
+  # model
+rf2 = train(x = train_x,
+            y = type_train_y$type,
+            method = "rf",
+            metric = "Accuracy",
+            importance = TRUE, 
+            trControl = ctrl,
+            ntree = 100 )
+
+  # confusion matrix
+confusionMatrix(rf2)
+```
+
+#### Visualizations
 ```{r plotsdata}
 # distribution for type
 ggplot(brain, aes(x = type)) +
