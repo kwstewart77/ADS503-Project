@@ -267,3 +267,25 @@ library(corrplot)
 res <- cor(gene_ele)
 corrplot(res)
 ```
+
+indx <- createFolds(train_brain1$type , returnTrain = TRUE)
+ctrl <- trainControl(method = "cv", index = indx)
+
+nnetGrid <- expand.grid(decay = c(.1, .5, .1),
+                        size = c(1, 10, 1))
+
+set.seed(100)
+nnet <- train(x = train_brain1[-1], y = train_brain1$type,
+              method = "nnet",
+              tuneGrid = nnetGrid,
+              trControl = ctrl,
+              preProcess = c("center", "scale", "pca"),
+              linout = TRUE,
+              trace = FALSE,
+              MaxNWts = 11 * (ncol(train_brain1[-1]) +1) +11 +1,
+              Maxit = 500)
+
+
+nnet
+plot(nnet)
+head(nnet$finalModel$wts)
